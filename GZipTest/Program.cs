@@ -11,7 +11,7 @@ namespace GZipTest
         {
             try
             {
-                ArgsAnalyzer.ArgsValidation(args);
+                ArgsAnalyzer.InitialValidation(args);
                 switch (args[0])
                 {
                     case "compress":
