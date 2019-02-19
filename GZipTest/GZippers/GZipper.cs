@@ -9,25 +9,25 @@ namespace GZipTest
 {
     abstract class GZipper
     {
-        //number of available processor cores - is the number of threads we will use
+        //number of processor cores will be the number of compressing/decompressing threads 
         protected static readonly int CoreCount = Environment.ProcessorCount;
         protected readonly string InFileName;
         protected readonly string OutFileName;
-        //ComputerInfo will be used to get free RAM amount
+        protected FileStream InFileStream;
+        protected FileStream OutFileStream;
         protected readonly ComputerInfo CompInfo;
+        //free RAM on stratring zipping process
+        protected readonly ulong InitialFreeRam;
         protected int ChunkCounter;
         protected DateTime StartTime;
         protected readonly Dictionary<int, byte[]> OutgoingChunks;
         protected readonly Dictionary<int, byte[]> IncomingChunks;
         protected bool IncomingFinished;
-        //separate thread for writing compressed data chunks to disk
-        protected readonly Thread FlushThread;
-        //semaphore to control number of simultaneous compress threads
+        //thread for writing compressed data chunks to drive
+        protected readonly Thread WritingThread;
+        //semaphore to control number of compress threads
         protected static Semaphore ProcessSemaphore;
         protected bool StopRequested;
-        protected FileStream InFileStream;
-        protected FileStream OutFileStream;
-        protected readonly ulong InitialFreeRam;
 
 
         protected GZipper(string inFileName, string outFileName)
@@ -35,18 +35,18 @@ namespace GZipTest
             InFileName = inFileName;
             OutFileName = outFileName;
             CompInfo = new ComputerInfo();
+            InitialFreeRam = CompInfo.AvailablePhysicalMemory;
             OutgoingChunks = new Dictionary<int, byte[]>();
             IncomingChunks = new Dictionary<int, byte[]>();
             ProcessSemaphore = new Semaphore(CoreCount, CoreCount);
-            FlushThread = new Thread(FlushToDisk);
-            InitialFreeRam = CompInfo.AvailablePhysicalMemory;
+            WritingThread = new Thread(WriteToDisk);
 
             Console.CancelKeyPress += delegate
             {
                 StopRequested = true;
                 InFileStream?.Close();
                 OutFileStream?.Close();
-                Console.Write("1");
+                Console.Write("Application's stop is requested");
             };
         }
 
@@ -54,6 +54,6 @@ namespace GZipTest
 
         protected abstract void ProcessChunk(int chunkNumber);
 
-        protected abstract void FlushToDisk();
+        protected abstract void WriteToDisk();
     }
 }

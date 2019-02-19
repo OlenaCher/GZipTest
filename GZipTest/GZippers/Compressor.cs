@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
@@ -14,7 +14,8 @@ namespace GZipTest
         public Compressor(string inFileName, string outFileName): base(inFileName, outFileName)
         {
         }
-                //read uncompressed data chunks from disk
+
+        //reading data chunks 
         public override void Start()
         {
             StartTime = DateTime.Now;
@@ -27,29 +28,30 @@ namespace GZipTest
                     {
                         if (StopRequested)
                             return;
-                        //ram overload - wait
+                        //check the percentage of remaining memory to initial
                         while ((float)CompInfo.AvailablePhysicalMemory / InitialFreeRam < 0.2)
                         {
-                            //force gc cleanup
+                            //forcing garbage collector cleanup
                             GC.Collect(2, GCCollectionMode.Forced);
                             Thread.Sleep(1000);
                         }
                         //optimal data read chunk size based on ram and cpu cores
                         var dataChunkSize = (long)CompInfo.AvailablePhysicalMemory / CoreCount / 4;
+                        //size of chunk for the last chunck
                         if (inFileStream.Length - inFileStream.Position <= dataChunkSize)
-                            //this is the last file part
                             dataChunkSize = inFileStream.Length - inFileStream.Position;
+                        //size of chunk for small files
                         if (inFileStream.Length < dataChunkSize)
                             dataChunkSize = inFileStream.Length / CoreCount + 1;
+                        //constant size of chunk for huge files
                         if (dataChunkSize > 256 * 1024 * 1024)
-                            //we don't need too huge chunks
                             dataChunkSize = 256 * 1024 * 1024;
                         var dataChunk = new byte[dataChunkSize];
                         //read file
                         inFileStream.Read(dataChunk, 0, (int)dataChunkSize);
                         lock (Locker)
                             IncomingChunks.Add(ChunkCounter, dataChunk);
-                        //start new thread with chunk number as argument
+                        //starting new thread with chunk number as an argument
                         var chunkNumber = ChunkCounter;
                         var compressThread = new Thread(() => ProcessChunk(chunkNumber));
                         compressThread.Start();
@@ -102,24 +104,24 @@ namespace GZipTest
                 Console.Write("There is an exception at the compressing process: {0}", ex.Message); 
             }
             ProcessSemaphore.Release();
-            //if this is the first chunk - start flush to disk in a separate thread
-            if (chunkNumber == 0 && FlushThread.ThreadState != ThreadState.Running && !StopRequested)
-                FlushThread.Start();
+            //if this is the first chunk - start writing to disk in a separate thread
+            if (chunkNumber == 0 && WritingThread.ThreadState != ThreadState.Running && !StopRequested)
+                WritingThread.Start();
         }
 
-        protected override void FlushToDisk()
+        protected override void WriteToDisk()
         {
             try
             {
                 using (var outFileStream = new FileStream(OutFileName, FileMode.Create))
                 {
                     OutFileStream = outFileStream;
-                    //flush all zipped data chunks to disk
+                    //write all zipped data chunks to disk
                     for (var chunkNumber = 0; !(IncomingFinished && chunkNumber == ChunkCounter); chunkNumber++)
                     {
                         if (StopRequested)
                             return;
-                        //waiting for the next chunk to flush to disk
+                        //waiting for the next chunk to write to disk
                         while(true)
                         {
                             KeyValuePair<int, byte[]> chunk;

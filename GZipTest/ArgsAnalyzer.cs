@@ -7,7 +7,7 @@ namespace GZipTest
     static class ArgsAnalyzer
     {
         /// <summary>
-        /// this class used for checking parametrs entered in CMD
+        ///Class ArgsAnalyzer is used for checking input arguments of the command line  
         /// </summary>
         public static void InitialValidation(string[] args)
         {
@@ -19,6 +19,7 @@ namespace GZipTest
             checkDrives(_fileIn, _fileOut);
         }
 
+        // common argument's checking
         private static void checkArgs(string[] args)
         {
             if (args.Length != 3)
@@ -35,6 +36,7 @@ namespace GZipTest
             }
         }
 
+        //input and output files' analizing
         private static void checkFiles(string command, FileInfo fileIn, FileInfo fileOut)
         {
             if (!fileIn.Exists)
@@ -69,6 +71,7 @@ namespace GZipTest
             }
         }
 
+        //drives' of IO files analizing
         private static void checkDrives(FileInfo fileIn, FileInfo fileOut)
         {
             string _pathDriveIn=Path.GetPathRoot(fileIn.FullName);

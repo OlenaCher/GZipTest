@@ -94,24 +94,24 @@ namespace GZipTest
                 Console.Write("There is the problem at the decompression process:{0}", ex.Message);
             }
             ProcessSemaphore.Release();
-            //if this is the first chunk - start flush to disk in a separate thread
-            if (chunkNumber == 0 && FlushThread.ThreadState != ThreadState.Running && !StopRequested)
-                FlushThread.Start();
+            //if this is the first chunk - start writing to disk in a separate thread
+            if (chunkNumber == 0 && WritingThread.ThreadState != ThreadState.Running && !StopRequested)
+                WritingThread.Start();
         }
 
-        protected override void FlushToDisk()
+        protected override void WriteToDisk()
         {
             try
             {
                 using (var outFileStream = new FileStream(OutFileName, FileMode.Create))
                 {
                     OutFileStream = outFileStream;
-                    //flush all decompressed data chunks to disk
+                    //write all decompressed data chunks to disk
                     for (var chunkNumber = 0; !(IncomingFinished && chunkNumber == ChunkCounter); chunkNumber++)
                     {
                         if (StopRequested)
                             return;
-                        //waiting for the next chunk to flush to disk
+                        //waiting for the next chunk to write to disk
                         while(true)
                         {
                             if (StopRequested)
