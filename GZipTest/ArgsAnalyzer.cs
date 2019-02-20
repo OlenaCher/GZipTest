@@ -11,16 +11,16 @@ namespace GZipTest
         /// </summary>
         public static void InitialValidation(string[] args)
         {
-            checkArgs(args);
+            СheckArgs(args);
             string _command=args[0].ToLower();
             FileInfo _fileIn = new FileInfo(args[1]);
             FileInfo _fileOut = new FileInfo(args[2]);
-            checkFiles(_command, _fileIn, _fileOut);
-            checkDrives(_fileIn, _fileOut);
+            СheckFiles(_command, _fileIn, _fileOut);
+            CheckDrives(_fileIn, _fileOut);
         }
 
         // common argument's checking
-        private static void checkArgs(string[] args)
+        private static void СheckArgs(string[] args)
         {
             if (args.Length != 3)
             {
@@ -37,7 +37,7 @@ namespace GZipTest
         }
 
         //input and output files' analizing
-        private static void checkFiles(string command, FileInfo fileIn, FileInfo fileOut)
+        private static void СheckFiles(string command, FileInfo fileIn, FileInfo fileOut)
         {
             if (!fileIn.Exists)
             {
@@ -72,7 +72,7 @@ namespace GZipTest
         }
 
         //drives' of IO files analizing
-        private static void checkDrives(FileInfo fileIn, FileInfo fileOut)
+        private static void CheckDrives(FileInfo fileIn, FileInfo fileOut)
         {
             string _pathDriveIn=Path.GetPathRoot(fileIn.FullName);
             string _pathDriveOut=Path.GetPathRoot(fileOut.FullName);

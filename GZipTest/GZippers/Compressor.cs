@@ -29,14 +29,14 @@ namespace GZipTest
                         if (StopRequested)
                             return;
                         //check the percentage of remaining memory to initial
-                        while ((float)CompInfo.AvailablePhysicalMemory / InitialFreeRam < 0.2)
+                        while ((float)CompInfo.AvailablePhysicalMemory / InitialFreeRam < 0.1)
                         {
                             //forcing garbage collector cleanup
                             GC.Collect(2, GCCollectionMode.Forced);
                             Thread.Sleep(1000);
                         }
                         //optimal data read chunk size based on ram and cpu cores
-                        var dataChunkSize = (long)CompInfo.AvailablePhysicalMemory / CoreCount / 4;
+                        var dataChunkSize = (long)CompInfo.AvailablePhysicalMemory / CoreCount / 1;
                         //size of chunk for the last chunck
                         if (inFileStream.Length - inFileStream.Position <= dataChunkSize)
                             dataChunkSize = inFileStream.Length - inFileStream.Position;

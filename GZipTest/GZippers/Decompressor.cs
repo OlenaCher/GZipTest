@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
@@ -30,7 +30,7 @@ namespace GZipTest
                         if (StopRequested)
                             return;
                         //ram overload - wait
-                        while ((float)CompInfo.AvailablePhysicalMemory / InitialFreeRam < 0.2)
+                        while ((float)CompInfo.AvailablePhysicalMemory / InitialFreeRam < 0.1)
                         {
                             //force gc cleanup
                             GC.Collect(2, GCCollectionMode.Forced);
@@ -55,11 +55,11 @@ namespace GZipTest
             catch (Exception ex)
             {
                 StopRequested = true;
-                Console.Write("There is the problem at the вуcompression process:{0}", ex.Message);
+                Console.Write("There is tecompression process:{0}", ex.Message);
             }
         }
 
-        //decompress data chunk
+        //decompress data chunkhe problem at the d
         protected override void ProcessChunk(int chunkNumber)
         {
             if (StopRequested)
